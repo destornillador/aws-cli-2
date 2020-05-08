@@ -1,0 +1,27 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*"
+env:
+  IMAGE_NAME: "aws-cli-2"
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login into the registry
+        run: | 
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      - name: Build Latest and publish
+        if: github.ref == 'refs/heads/master'
+        run: |
+          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
+          VERSION=latest
+          docker build . -t $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
