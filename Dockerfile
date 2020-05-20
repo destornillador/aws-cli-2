@@ -1,5 +1,7 @@
 FROM python:3.7.7-slim-buster
 
+ENV AWS_SSO_CRED_RESTORE_VERSION=0.1.0
+
 RUN apt-get update && \
     apt-get install -y curl unzip git && \
     apt-get clean && \
@@ -11,7 +13,10 @@ RUN  unzip awscliv2.zip && \
     ./aws/install
 
 # Install workaround for updating credentials file
-RUN git clone https://github.com/destornillador/aws-sso-cred-restore
+RUN git clone https://github.com/destornillador/aws-sso-cred-restore && \
+    cd aws-sso-cred-restore && \
+    git checkout $AWS_SSO_CRED_RESTORE_VERSION
+
 RUN pip3 install ./aws-sso-cred-restore 
 
 COPY update_credentials.sh /usr/local/bin/
